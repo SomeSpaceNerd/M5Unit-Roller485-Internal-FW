@@ -158,8 +158,9 @@ void user_usart3_uart_init(void)
 {
 
   /* USER CODE BEGIN USART3_Init 0 */
-  if (bps_index > 2)
-    bps_index = 2;
+	// Modified from original to accomodate extra value
+  if (bps_index > 3)
+    bps_index = 3;
   /* USER CODE END USART3_Init 0 */
 
   LL_USART_InitTypeDef USART_InitStruct = {0};

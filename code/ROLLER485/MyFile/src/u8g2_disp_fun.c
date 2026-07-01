@@ -528,6 +528,14 @@ void u8g2_disp_info(void)
     char target_char_buf[50] = {0};
     int pos_nums = 0, target_pos_nums = 0;
 
+    // Defensive: bps_index is read back from flash and could theoretically
+    // be an erased/out-of-range value (e.g. 0xFF) if storage is corrupted.
+    // bps_list[] has 4 entries (indices 0-3); clamp before it's ever used
+    // as an array index below, to match the same clamp usart.c applies.
+    if (bps_index > 3) {
+        bps_index = 3;
+    }
+
     u8g2_SetDrawColor(&u8g2, 0);
     u8g2_DrawBox(&u8g2, 0+10+2, 0, 54, 48);
 
@@ -665,7 +673,8 @@ void u8g2_disp_info(void)
         u8g2_SetFont(&u8g2, u8g2_font_4x6_tf); /*字库选择*/
         u8g2_DrawStr(&u8g2, 0+16+2, 45, "BPS:");
         u8g2_SetFont(&u8g2, u8g2_font_5x7_tf); /*字库选择*/
-        snprintf(dis_char_buf, 50, "%d", bps_list[bps_index]);
+				snprintf(dis_char_buf, 50, "%d", bps_list[bps_index]);
+				
         u8g2_DrawStr(&u8g2, 11+17+6, 45, dis_char_buf);   
     }    
 
@@ -1966,6 +1975,8 @@ void u8g2_disp_menu_5_1(void)
     }     
 }
 
+// Function to draw BPS selection menu
+// Modified to support additional option
 void u8g2_disp_menu_6_1(void)
 {
     char dis_buffer_line_1[20] = {0};
@@ -1979,78 +1990,104 @@ void u8g2_disp_menu_6_1(void)
         opt_index = bps_index;
         init_flag = 1;
     }
+
     u8g2_ClearBuffer(&u8g2);
     u8g2_SetDrawColor(&u8g2, 1);
     u8g2_DrawBox(&u8g2, 0, 0, 64, 15);
     u8g2_SetFont(&u8g2, u8g2_font_6x13_tf);
     u8g2_SetDrawColor(&u8g2, 0);
-    u8g2_DrawStr(&u8g2, 17, 12, "<BPS>"); 
+    u8g2_DrawStr(&u8g2, 17, 12, "<BPS>");
     u8g2_SetDrawColor(&u8g2, 1);
 
     u8g2_SetFont(&u8g2, u8g2_font_6x10_tf);
+
     switch (bps_index)
     {
     case 0:
-        snprintf(dis_buffer_line_1, sizeof(dis_buffer_line_1), "*115200");
-        snprintf(dis_buffer_line_2, sizeof(dis_buffer_line_2), " 19200");
-        snprintf(dis_buffer_line_3, sizeof(dis_buffer_line_3), " 9600");
+        snprintf(dis_buffer_line_1, sizeof(dis_buffer_line_1), "*1000000");
+        snprintf(dis_buffer_line_2, sizeof(dis_buffer_line_2), " 115200");
+        snprintf(dis_buffer_line_3, sizeof(dis_buffer_line_3), " 19200");
+        snprintf(dis_buffer_line_4, sizeof(dis_buffer_line_4), " 9600");
         break;
+
     case 1:
-        snprintf(dis_buffer_line_1, sizeof(dis_buffer_line_1), " 115200");
-        snprintf(dis_buffer_line_2, sizeof(dis_buffer_line_2), "*19200");
-        snprintf(dis_buffer_line_3, sizeof(dis_buffer_line_3), " 9600");
+        snprintf(dis_buffer_line_1, sizeof(dis_buffer_line_1), " 1000000");
+        snprintf(dis_buffer_line_2, sizeof(dis_buffer_line_2), "*115200");
+        snprintf(dis_buffer_line_3, sizeof(dis_buffer_line_3), " 19200");
+        snprintf(dis_buffer_line_4, sizeof(dis_buffer_line_4), " 9600");
         break;
+
     case 2:
-        snprintf(dis_buffer_line_1, sizeof(dis_buffer_line_1), " 115200");
-        snprintf(dis_buffer_line_2, sizeof(dis_buffer_line_2), " 19200");
-        snprintf(dis_buffer_line_3, sizeof(dis_buffer_line_3), "*9600");
+        snprintf(dis_buffer_line_1, sizeof(dis_buffer_line_1), " 1000000");
+        snprintf(dis_buffer_line_2, sizeof(dis_buffer_line_2), " 115200");
+        snprintf(dis_buffer_line_3, sizeof(dis_buffer_line_3), "*19200");
+        snprintf(dis_buffer_line_4, sizeof(dis_buffer_line_4), " 9600");
         break;
-    
+
+    case 3:
+        snprintf(dis_buffer_line_1, sizeof(dis_buffer_line_1), " 1000000");
+        snprintf(dis_buffer_line_2, sizeof(dis_buffer_line_2), " 115200");
+        snprintf(dis_buffer_line_3, sizeof(dis_buffer_line_3), " 19200");
+        snprintf(dis_buffer_line_4, sizeof(dis_buffer_line_4), "*9600");
+        break;
+
     default:
         break;
     }
 
-    if (encoder_value_t.encoder_down)  {
+    if (encoder_value_t.encoder_down) {
         opt_index++;
-        if (opt_index >= 3) {
+        if (opt_index >= 4)
             opt_index = 0;
-        }
         encoder_value_t.encoder_down = 0;
     }
-    if (encoder_value_t.encoder_up)  {
+
+    if (encoder_value_t.encoder_up) {
         if (opt_index > 0)
             opt_index--;
         else
-            opt_index = 2;
+            opt_index = 3;
         encoder_value_t.encoder_up = 0;
-    }    
+    }
 
+    // Display is only 48px tall, so only 3 rows (y=25/35/45) fit at once.
+    // Scroll a 3-line window and keep the cursor in view, same as the
+    // SPEED PID menu (also 4 options) does.
     switch (opt_index)
     {
     case 0:
         u8g2_DrawStr(&u8g2, 0, 25, ">");
         u8g2_DrawStr(&u8g2, 10, 25, dis_buffer_line_1);
-        u8g2_DrawStr(&u8g2, 10, 35, dis_buffer_line_2); 
-        u8g2_DrawStr(&u8g2, 10, 45, dis_buffer_line_3);         
+        u8g2_DrawStr(&u8g2, 10, 35, dis_buffer_line_2);
+        u8g2_DrawStr(&u8g2, 10, 45, dis_buffer_line_3);
         break;
+
     case 1:
         u8g2_DrawStr(&u8g2, 0, 35, ">");
+        u8g2_DrawStr(&u8g2, 10, 25, dis_buffer_line_1);
         u8g2_DrawStr(&u8g2, 10, 35, dis_buffer_line_2);
-        u8g2_DrawStr(&u8g2, 10, 25, dis_buffer_line_1); 
-        u8g2_DrawStr(&u8g2, 10, 45, dis_buffer_line_3);         
+        u8g2_DrawStr(&u8g2, 10, 45, dis_buffer_line_3);
         break;
+
     case 2:
         u8g2_DrawStr(&u8g2, 0, 45, ">");
+        u8g2_DrawStr(&u8g2, 10, 25, dis_buffer_line_1);
+        u8g2_DrawStr(&u8g2, 10, 35, dis_buffer_line_2);
         u8g2_DrawStr(&u8g2, 10, 45, dis_buffer_line_3);
-        u8g2_DrawStr(&u8g2, 10, 25, dis_buffer_line_1); 
-        u8g2_DrawStr(&u8g2, 10, 35, dis_buffer_line_2);         
         break;
-    
+
+    case 3:
+        u8g2_DrawStr(&u8g2, 0, 45, ">");
+        u8g2_DrawStr(&u8g2, 10, 45, dis_buffer_line_4);
+        u8g2_DrawStr(&u8g2, 10, 25, dis_buffer_line_2);
+        u8g2_DrawStr(&u8g2, 10, 35, dis_buffer_line_3);
+        break;
+
     default:
         break;
     }
-     
-    u8g2_SendBuffer(&u8g2); 
+
+    u8g2_SendBuffer(&u8g2);
 
     if (my_button.was_click) {
         bps_index = opt_index;
@@ -2059,9 +2096,9 @@ void u8g2_disp_menu_6_1(void)
         flash_data_write_back();
         motor_mode = MODE_DIAL;
         MotorDriverSetMode(MDRV_MODE_RUN);
-        funIndex = table[funIndex].exit;        
+        funIndex = table[funIndex].exit;
         my_button.was_click = 0;
-    }     
+    }
 }
 
 void u8g2_disp_menu_7_1(void)

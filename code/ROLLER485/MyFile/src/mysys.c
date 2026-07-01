@@ -10,7 +10,7 @@
 #include "tim.h"
 #include "tle5012b.h"
 
-#include "oled.h"
+//#include "oled.h" // Doesn't exist (?)
 #include "bmp.h"
 
 #include "arm_const_structs.h"
@@ -162,7 +162,7 @@ uint8_t motor_overvalue_protection_flag = 0;
 
 float rpm_rps_count_temp = 0;
 
-uint32_t bps_list[3] = {115200, 19200, 9600};
+uint32_t bps_list[4] = {1000000, 115200, 19200, 9600}; // Modified from original list of 115200, 19200, 9600
 uint8_t bps_index = 0;
 float brightness_list[4] = {1.0f, 0.5f, 0.2f, 0.0f};
 uint8_t brightness_index = 100;

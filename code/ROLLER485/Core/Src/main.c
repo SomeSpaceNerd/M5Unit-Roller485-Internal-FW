@@ -900,7 +900,7 @@ void Slave_Complete_Callback(uint8_t *rx_data, uint16_t len)
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-  IAP_Set();
+  //IAP_Set(); // Commented out as per M5Stack's instructions
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/

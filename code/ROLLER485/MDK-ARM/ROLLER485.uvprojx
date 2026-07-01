@@ -10,13 +10,13 @@
       <TargetName>ROLLER485</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>6090000::V6.9::.\ARMCLANG</pCCUsed>
+      <pCCUsed>6240000::V6.24::ARMCLANG</pCCUsed>
       <uAC6>1</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32G431CBUx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32G4xx_DFP.1.5.0</PackID>
+          <PackID>Keil.STM32G4xx_DFP.1.6.0</PackID>
           <PackURL>https://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000-0x20007FFF) IROM(0x8000000-0x801FFFF) CLOCK(8000000) FPU2 CPUTYPE("Cortex-M4") TZ</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -82,7 +82,7 @@
           <AfterMake>
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name>C:\Keil_v5\ARM\ARMCC\bin\fromelf.exe --bin -o .\BLDC_G4_DEMO\ROLLER485.bin .\BLDC_G4_DEMO\ROLLER485.axf</UserProg1Name>
+            <UserProg1Name>C:\Users\Will\AppData\Local\Keil_v5\ARM\ARMCLANG\bin\fromelf.exe --bin -o .\BLDC_G4_DEMO\ROLLER485.bin .\BLDC_G4_DEMO\ROLLER485.axf</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -184,6 +184,9 @@
             <hadXRAM>0</hadXRAM>
             <uocXRam>0</uocXRam>
             <RvdsVP>2</RvdsVP>
+            <RvdsMve>0</RvdsMve>
+            <RvdsCdeCp>0</RvdsCdeCp>
+            <nBranchProt>0</nBranchProt>
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -273,8 +276,8 @@
               </OCR_RVCT3>
               <OCR_RVCT4>
                 <Type>1</Type>
-                <StartAddress>0x8002000</StartAddress>
-                <Size>0x1e000</Size>
+                <StartAddress>0x8000000</StartAddress>
+                <Size>0x20000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -298,8 +301,8 @@
               </OCR_RVCT8>
               <OCR_RVCT9>
                 <Type>0</Type>
-                <StartAddress>0x200000c0</StartAddress>
-                <Size>0x7f40</Size>
+                <StartAddress>0x20000000</StartAddress>
+                <Size>0x8000</Size>
               </OCR_RVCT9>
               <OCR_RVCT10>
                 <Type>0</Type>
@@ -350,7 +353,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <uClangAs>0</uClangAs>
+            <ClangAsOpt>4</ClangAsOpt>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -1142,11 +1145,6 @@
               <FilePath>..\MyFile\src\mysys.c</FilePath>
             </File>
             <File>
-              <FileName>oled.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\MyFile\src\oled.c</FilePath>
-            </File>
-            <File>
               <FileName>myadc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\MyFile\src\myadc.c</FilePath>
@@ -1422,5 +1420,14 @@
     </components>
     <files/>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>ROLLER485</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>

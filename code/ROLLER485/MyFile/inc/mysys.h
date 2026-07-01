@@ -84,7 +84,7 @@ extern uint32_t pos_err_auto_counter;
 extern uint32_t pos_err_recover_counter;
 extern uint32_t pos_err_recover_try_counter;
 extern uint8_t mode_switch_flag;
-extern uint32_t bps_list[3];
+extern uint32_t bps_list[4]; // Modified from original list with 3 items
 extern uint8_t bps_index;
 extern float brightness_list[4];
 extern uint8_t brightness_index;
