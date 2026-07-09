@@ -130,18 +130,18 @@ bool writeMessageToFlash( uint8_t *buff , uint16_t length)
     
     
     /*Write datas*/
-    for(i=0 ;i<length/8 ;i++)
+    int numChunks = (length + 7) / 8; // round up, no longer truncate to nearest half-word
+    for(i=0 ;i<numChunks ;i++)
     {
-        temp = buff[8*i] | (uint64_t)buff[8*i+1]<<8 | (uint64_t)buff[8*i+2]<<16 | (uint64_t)buff[8*i+3]<<24\
-        | (uint64_t)buff[8*i+4]<<32 | (uint64_t)buff[8*i+5]<<40 | (uint64_t)buff[8*i+6]<<48 | (uint64_t)buff[8*i+7]<<56;
+        temp = 0;
+        for (int b = 0; b < 8; b++)
+        {
+            uint16_t idx = 8*i + b;
+            uint8_t val = (idx < length) ? buff[idx] : 0xFF; // pad data
+            temp |= ((uint64_t)val) << (8*b);
+        }
         HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, STM32G0xx_FLASH_PAGE59_STARTADDR+8+8*i, temp);
-    }  
-    // if( isItOddNumber(length) )//Write one more if length is odd number.
-    // {        
-    //     temp = buff[0] | (uint64_t)buff[1]<<8 | (uint64_t)buff[2]<<16 | (uint64_t)buff[3]<<24\
-    //     | (uint64_t)buff[4]<<32 | (uint64_t)buff[5]<<40 | (uint64_t)buff[6]<<48 | (uint64_t)buff[7]<<56;
-    //     HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, STM32G0xx_FLASH_PAGE59_STARTADDR+8, temp);
-    // }
+    }
 
     
     /*Read out and check*/
